@@ -3,6 +3,7 @@
 #include<vector>
 #include<iomanip>
 #include<algorithm>
+#include<queue>
 
 class Process
 {
@@ -10,8 +11,17 @@ class Process
         char processID;
         float brustTime;
         float arrivalTime;
-        Process(char PID = '\0', float BT = 0, float AT = 0) {processID = PID; brustTime = BT; arrivalTime = AT;}
+        float got_cpu_at;
+        float completion_time;
+        Process(char PID = '\0', float BT = 0, float AT = 0) 
+        {
+            processID = PID;
+            brustTime = BT;
+            arrivalTime = AT;
+            got_cpu_at = completion_time = 0;
+        }
 };
+
 
 //This Function is used to sort the vector arr
 bool comparison(const Process &i, const Process &j)
@@ -37,15 +47,18 @@ class RoundRobin : public Scheduler
 {
     private:
         std::vector<Process> GantChart;
-        std::vector<Process> Arrivals;
+        std::queue<Process> Arrivals;
+        int TimeQuantum;
     public:
         void calculate();
+        RoundRobin(int TQ = 2){TimeQuantum = TQ;}
 };
 
 int main()
 {
     char command[20];
     Scheduler *Sc;
+    int TQ;
     while(1)
     {
         std::cout<<"command: ";
@@ -53,7 +66,11 @@ int main()
         if(!strcmp(command, "exit"))
             break;
         else if(!strcmp(command, "RoundRobin"))
-            Sc = new RoundRobin();
+        {
+            std::cout<<"Time Quantum (ms): ";
+            std::cin>>TQ;
+            Sc = new RoundRobin(TQ);
+        }
         else if(!strcmp(command, "get_array"))
             Sc->get_array();
         else if(!strcmp(command, "show"))
@@ -80,7 +97,6 @@ void Scheduler::get_array()
         std::cin>>BT>>AT;
         arr.push_back(*(new Process(PID, BT, AT)));
     }
-    sort();
 }
 
 void Scheduler::show()
@@ -96,10 +112,33 @@ void Scheduler::show()
 
 void RoundRobin::calculate()
 {
-    int time = 0;
+    sort();
+    int time = -1;
+    Process *temp;
     while(true)
     {
         time++;
-        time = 
+        for(int i=0; i<arr.size() && arr[i].arrivalTime <= time; i++)
+        {
+            if(arr[i].arrivalTime == time)
+                Arrivals.push(arr[i]);
+        }
+        if(temp != NULL) Arrivals.push(*temp);
+        temp = NULL;
+        GantChart.push_back(Arrivals.front());
+        int size = GantChart.size();
+        if(GantChart[size-1].got_cpu_at == 0)
+            GantChart[size-1].got_cpu_at = time;
+        time += TimeQuantum;
+        GantChart[size-1].brustTime = GantChart[size-1].brustTime - TimeQuantum;
+        if(GantChart[size-1].brustTime <= 0)
+        {
+            GantChart[size-1].brustTime = 0;
+            GantChart[size-1].completion_time = time;
+        }
+        else
+            temp = &Arrivals.front();
+        time --;
+        Arrivals.pop();
     }
 }
