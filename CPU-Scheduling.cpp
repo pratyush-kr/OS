@@ -13,11 +13,14 @@ class Process
         Process(char PID = '\0', float BT = 0, float AT = 0) {processID = PID; brustTime = BT; arrivalTime = AT;}
 };
 
-bool comparison(const Process &, const Process &);
+//This Function is used to sort the vector arr
+bool comparison(const Process &i, const Process &j)
+{
+    return (i.arrivalTime < j.arrivalTime)? true:false;
+}
 
 class Scheduler
 {
-    friend bool comparison(const Process &, const Process &);
     protected:
         std::vector<Process> arr;
         void sort()
@@ -25,9 +28,9 @@ class Scheduler
             std::sort(arr.begin(), arr.end(), comparison);
         }
     public:
-        virtual void get_array() = 0;
+        void get_array();
+        void show();
         virtual void calculate() = 0;
-        virtual void show() = 0;
 };
 
 class RoundRobin : public Scheduler
@@ -36,9 +39,7 @@ class RoundRobin : public Scheduler
         std::vector<Process> GantChart;
         std::vector<Process> Arrivals;
     public:
-        void get_array();
         void calculate();
-        void show();
 };
 
 int main()
@@ -63,7 +64,7 @@ int main()
     return 0;
 }
 
-void RoundRobin::get_array()
+void Scheduler::get_array()
 {
     char PID;
     int BT, AT;
@@ -82,12 +83,7 @@ void RoundRobin::get_array()
     sort();
 }
 
-void RoundRobin::calculate()
-{
-
-}
-
-void RoundRobin::show()
+void Scheduler::show()
 {
     std::cout<<"PID  "<<"BT  "<<"AT  \n";
     for(int i=0; i<arr.size(); i++)
@@ -98,7 +94,12 @@ void RoundRobin::show()
     }
 }
 
-bool comparison(const Process &i, const Process &j)
+void RoundRobin::calculate()
 {
-    return (i.arrivalTime < j.arrivalTime)? true:false;
+    int time = 0;
+    while(true)
+    {
+        time++;
+        time = 
+    }
 }
