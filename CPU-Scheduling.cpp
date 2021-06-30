@@ -18,7 +18,7 @@ class Process
             processID = PID;
             brustTime = BT;
             arrivalTime = AT;
-            got_cpu_at = completion_time = 0;
+            got_cpu_at = completion_time = -1;
         }
 };
 
@@ -127,7 +127,7 @@ void RoundRobin::calculate()
         temp = NULL;
         GantChart.push_back(Arrivals.front());
         int size = GantChart.size();
-        if(GantChart[size-1].got_cpu_at == 0)
+        if(GantChart[size-1].got_cpu_at == -1)
             GantChart[size-1].got_cpu_at = time;
         time += TimeQuantum;
         GantChart[size-1].brustTime = GantChart[size-1].brustTime - TimeQuantum;
