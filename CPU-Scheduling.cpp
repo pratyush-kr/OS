@@ -2,6 +2,7 @@
 #include<cstring>
 #include<vector>
 #include<iomanip>
+#include<algorithm>
 
 class Process
 {
@@ -12,10 +13,17 @@ class Process
         Process(char PID = '\0', float BT = 0, float AT = 0) {processID = PID; brustTime = BT; arrivalTime = AT;}
 };
 
+bool comparison(const Process &, const Process &);
+
 class Scheduler
 {
+    friend bool comparison(const Process &, const Process &);
     protected:
         std::vector<Process> arr;
+        void sort()
+        {
+            std::sort(arr.begin(), arr.end(), comparison);
+        }
     public:
         virtual void get_array() = 0;
         virtual void calculate() = 0;
@@ -45,6 +53,12 @@ int main()
             break;
         else if(!strcmp(command, "RoundRobin"))
             Sc = new RoundRobin();
+        else if(!strcmp(command, "get_array"))
+            Sc->get_array();
+        else if(!strcmp(command, "show"))
+            Sc->show();
+        else if(!strcmp(command, "calculate"))
+            Sc->calculate();
     }
     return 0;
 }
@@ -54,6 +68,7 @@ void RoundRobin::get_array()
     char PID;
     int BT, AT;
     std::string str;
+    std::cout<<"Type exit to quit entring\n";
     std::cout<<"PID BT AT\n";
     while(1)
     {
@@ -64,7 +79,26 @@ void RoundRobin::get_array()
         std::cin>>BT>>AT;
         arr.push_back(*(new Process(PID, BT, AT)));
     }
+    sort();
 }
 
 void RoundRobin::calculate()
-{}
+{
+
+}
+
+void RoundRobin::show()
+{
+    std::cout<<"PID  "<<"BT  "<<"AT  \n";
+    for(int i=0; i<arr.size(); i++)
+    {
+        std::cout<<arr[i].processID<<"  "
+                 <<arr[i].brustTime<<"  "
+                 <<arr[i].arrivalTime<<"\n";
+    }
+}
+
+bool comparison(const Process &i, const Process &j)
+{
+    return (i.arrivalTime < j.arrivalTime)? true:false;
+}
