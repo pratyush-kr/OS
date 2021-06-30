@@ -46,7 +46,7 @@ class Scheduler
 class RoundRobin : public Scheduler
 {
     private:
-        std::vector<Process> GantChart;
+        std::vector<Process*> GantChart;
         std::queue<Process> Arrivals;
         int TimeQuantum;
     public:
@@ -101,44 +101,65 @@ void Scheduler::get_array()
 
 void Scheduler::show()
 {
-    std::cout<<"PID  "<<"BT  "<<"AT  \n";
+    std::cout<<"PID  BT  AT  CT\n";
     for(int i=0; i<arr.size(); i++)
     {
         std::cout<<arr[i].processID<<"  "
                  <<arr[i].brustTime<<"  "
-                 <<arr[i].arrivalTime<<"\n";
+                 <<arr[i].arrivalTime<<"  "
+                 <<arr[i].completion_time<<"\n";
     }
 }
 
 void RoundRobin::calculate()
 {
+    bool done = false;
     sort();
+    std::vector<Process> processes = arr;
+    for(int i=0; i<arr.size(); i++)
+        processes.push_back(arr[i]);
     int time = -1;
     Process *temp;
-    while(true)
+    while(!done)
     {
+        done = true;
         time++;
-        for(int i=0; i<arr.size() && arr[i].arrivalTime <= time; i++)
+        //search for the arrived processess
+        for(int i=0; i<processes.size() && processes[i].arrivalTime <= time; i++)
         {
-            if(arr[i].arrivalTime == time)
-                Arrivals.push(arr[i]);
+            if(processes[i].arrivalTime == time)
+                Arrivals.push(processes[i]);
         }
         if(temp != NULL) Arrivals.push(*temp);
         temp = NULL;
-        GantChart.push_back(Arrivals.front());
+        //push the front of arrivals to cpu i.e GantChart
+        GantChart.push_back(&Arrivals.front());
         int size = GantChart.size();
-        if(GantChart[size-1].got_cpu_at == -1)
-            GantChart[size-1].got_cpu_at = time;
+        //add got_cpu_at 
+        if(GantChart[size-1]->got_cpu_at == -1)
+            GantChart[size-1]->got_cpu_at = time;
+        //increase by TQ
         time += TimeQuantum;
-        GantChart[size-1].brustTime = GantChart[size-1].brustTime - TimeQuantum;
-        if(GantChart[size-1].brustTime <= 0)
+        GantChart[size-1]->brustTime = GantChart[size-1]->brustTime - TimeQuantum;
+        if(GantChart[size-1]->brustTime <= 0)
         {
-            GantChart[size-1].brustTime = 0;
-            GantChart[size-1].completion_time = time;
+            GantChart[size-1]->brustTime = 0;
+            GantChart[size-1]->completion_time = time;
         }
         else
             temp = &Arrivals.front();
         time --;
         Arrivals.pop();
+        for(int i=0; i<processes.size(); i++)
+            if(processes[i].brustTime > 0)
+            {
+                done = false;
+                break;
+            }
+    }
+    for(int i=0; i<arr.size(); i++)
+    {
+        arr[i].got_cpu_at = processes[i].got_cpu_at;
+        arr[i].completion_time = processes[i].completion_time;
     }
 }
