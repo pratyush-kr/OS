@@ -1,6 +1,7 @@
 #include<iostream>
 #include<cstring>
 #include<vector>
+#include<iomanip>
 
 class Process
 {
@@ -25,6 +26,7 @@ class RoundRobin : public Scheduler
     public:
         void get_array();
         void calculate();
+        void show();
 };
 
 int main()
@@ -38,4 +40,25 @@ int main()
             break;
     }
     return 0;
+}
+
+void RoundRobin::get_array()
+{
+    char PID;
+    int BT, AT;
+    std::string str;
+    while(1)
+    {
+        std::cin>>str;
+        if(str == "exit")
+            break;
+        PID = str[0];
+        std::cin>>BT>>AT;
+        arr.push_back(*(new Process(PID, BT, AT)));
+    }
+}
+
+void RoundRobin::calculate()
+{
+    
 }
