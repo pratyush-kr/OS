@@ -116,10 +116,8 @@ void RoundRobin::calculate()
     bool done = false;
     sort();
     std::vector<Process> processes = arr;
-    for(int i=0; i<arr.size(); i++)
-        processes.push_back(arr[i]);
     int time = -1;
-    Process *temp;
+    Process *temp = NULL;
     while(!done)
     {
         done = true;
@@ -127,27 +125,31 @@ void RoundRobin::calculate()
         //search for the arrived processess
         for(int i=0; i<processes.size() && processes[i].arrivalTime <= time; i++)
         {
-            if(processes[i].arrivalTime == time)
-                Arrivals.push(processes[i]);
+            if(processes[i].arrivalTime <= time)
+                Arrivals.push(processes[i]),
+                processes.erase(processes.begin());
         }
         if(temp != NULL) Arrivals.push(*temp);
         temp = NULL;
         //push the front of arrivals to cpu i.e GantChart
-        GantChart.push_back(&Arrivals.front());
+        GantChart.push_back(&(Arrivals.front()));
         int size = GantChart.size();
         //add got_cpu_at 
         if(GantChart[size-1]->got_cpu_at == -1)
             GantChart[size-1]->got_cpu_at = time;
         //increase by TQ
-        time += TimeQuantum;
-        GantChart[size-1]->brustTime = GantChart[size-1]->brustTime - TimeQuantum;
+        if(GantChart[size-1]->brustTime > TimeQuantum)
+            time += TimeQuantum;
+        else
+            time += GantChart[size-1]->brustTime;
+        GantChart[size-1]->brustTime -= TimeQuantum;
         if(GantChart[size-1]->brustTime <= 0)
         {
             GantChart[size-1]->brustTime = 0;
             GantChart[size-1]->completion_time = time;
         }
         else
-            temp = &Arrivals.front();
+            temp = &(Arrivals.front());
         time --;
         Arrivals.pop();
         for(int i=0; i<processes.size(); i++)
