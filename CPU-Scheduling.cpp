@@ -46,7 +46,7 @@ class Scheduler
 class RoundRobin : public Scheduler
 {
     private:
-        std::vector<Process*> GantChart;
+        std::vector<std::reference_wrapper<Process>> GantChart;
         std::queue<Process> Arrivals;
         int TimeQuantum;
     public:
@@ -114,54 +114,22 @@ void Scheduler::show()
 void RoundRobin::calculate()
 {
     bool done = false;
-    sort();
-    std::vector<Process> processes = arr;
     int time = -1;
-    Process *temp = NULL;
+    sort();
+    std::queue<Process> Queue;
+    for(int i=0; i<arr.size(); i++)
+        Queue.push(arr[i]);
     while(!done)
     {
-        done = true;
         time++;
-        //search for the arrived processess
-        for(int i=0; i<processes.size() && processes[i].arrivalTime <= time; i++)
+        //iterate over the abc and find what processess have arriverd
+        for(int i=0; i<Arr.size(); i++)
         {
-            if(processes[i].arrivalTime <= time)
-                Arrivals.push(processes[i]),
-                processes.erase(processes.begin());
-        }
-        if(temp != NULL) Arrivals.push(*temp);
-        temp = NULL;
-        //push the front of arrivals to cpu i.e GantChart
-        GantChart.push_back(&(Arrivals.front()));
-        int size = GantChart.size();
-        //add got_cpu_at 
-        if(GantChart[size-1]->got_cpu_at == -1)
-            GantChart[size-1]->got_cpu_at = time;
-        //increase by TQ
-        if(GantChart[size-1]->brustTime > TimeQuantum)
-            time += TimeQuantum;
-        else
-            time += GantChart[size-1]->brustTime;
-        GantChart[size-1]->brustTime -= TimeQuantum;
-        if(GantChart[size-1]->brustTime <= 0)
-        {
-            GantChart[size-1]->brustTime = 0;
-            GantChart[size-1]->completion_time = time;
-        }
-        else
-            temp = &(Arrivals.front());
-        time --;
-        Arrivals.pop();
-        for(int i=0; i<processes.size(); i++)
-            if(processes[i].brustTime > 0)
+            if(Queue.front().arrivalTime <= time)
             {
-                done = false;
-                break;
+                Arrivals.push(Queue.front());
+                Queue.pop();
             }
-    }
-    for(int i=0; i<arr.size(); i++)
-    {
-        arr[i].got_cpu_at = processes[i].got_cpu_at;
-        arr[i].completion_time = processes[i].completion_time;
+        }
     }
 }
