@@ -116,20 +116,33 @@ void RoundRobin::calculate()
     bool done = false;
     int time = -1;
     sort();
+    Process *temp = NULL;
     std::queue<Process> Queue;
     for(int i=0; i<arr.size(); i++)
         Queue.push(arr[i]);
     while(!done)
     {
         time++;
-        //iterate over the abc and find what processess have arriverd
-        for(int i=0; i<Arr.size(); i++)
+        //iterate over the Queue and find what processess have arriverd
+        for(int i=0; i<Queue.size(); i++)
         {
             if(Queue.front().arrivalTime <= time)
             {
                 Arrivals.push(Queue.front());
                 Queue.pop();
             }
+        }
+        if(temp) Arrivals.push(*temp);
+        temp = NULL;
+        if(Arrivals.front().brustTime > TimeQuantum)
+        {
+            Arrivals.front().brustTime -= TimeQuantum
+            time += TimeQuantum;
+        }
+        else
+        {
+            Arrivals.front().brustTime = 0;
+            time += Arrivals.front().brustTime;
         }
     }
 }
