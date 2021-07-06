@@ -121,8 +121,7 @@ void RoundRobin::calculate()
     int time = -1;
     int rem_bt[arr.size()];
     std::vector<Process> ready_queue = sort();
-    for(int i=0; i<arr.size(); i++)
-        rem_bt = arr[i].brustTime;
+    std::vector<Process> new_arr;
     bool done = false;
     Process *front = NULL;
     while(!done)
@@ -154,8 +153,18 @@ void RoundRobin::calculate()
             {
                 time += Arrivals.front().brustTime;
                 Arrivals.front().brustTime = 0;
+                for(int i=0; i<arr.size(); i++)
+                    if(Arrivals.front() == arr[i])
+                    {
+                        front = &arr[i];
+                        break;
+                    }
+                front->completion_time = time;
+                front->got_cpu_at = Arrivals.front().got_cpu_at;
+                Arrivals.pop();
+                front = NULL;
             }
+            time--;
         }
-        time--;
     }
 }
