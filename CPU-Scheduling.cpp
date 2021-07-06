@@ -46,6 +46,7 @@ class Scheduler
         void get_array();
         void show();
         virtual void calculate() = 0;
+        virtual void printGantChart() = 0;
 };
 
 class RoundRobin : public Scheduler
@@ -57,6 +58,12 @@ class RoundRobin : public Scheduler
     public:
         void calculate();
         RoundRobin(int TQ = 2){TimeQuantum = TQ;}
+        void printGantChart()
+        {
+            for(int i=0; i<GantChart.size(); i++)
+                std::cout<<GantChart[i].processID<<" ";
+            std::cout<<"\n";
+        }
 };
 
 int main()
@@ -82,6 +89,8 @@ int main()
             Sc->show();
         else if(!strcmp(command, "calculate"))
             Sc->calculate();
+        else if(!strcmp(command, "GantChart"))
+            Sc->printGantChart();
     }
     return 0;
 }
@@ -106,13 +115,14 @@ void Scheduler::get_array()
 
 void Scheduler::show()
 {
-    std::cout<<"PID  BT  AT  CT\n";
+    std::cout<<"PID  BT  AT  CT WT\n";
     for(int i=0; i<arr.size(); i++)
     {
         std::cout<<arr[i].processID<<"  "
                  <<arr[i].brustTime<<"  "
                  <<arr[i].arrivalTime<<"  "
-                 <<arr[i].completion_time<<"\n";
+                 <<arr[i].completion_time<<" "
+                 <<arr[i].completion_time - arr[i].brustTime - arr[i].arrivalTime<<"\n";
     }
 }
 
