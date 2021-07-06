@@ -121,34 +121,36 @@ void RoundRobin::calculate()
     int time = -1;
     int rem_bt[arr.size()];
     std::vector<Process> ready_queue = sort();
-    std::vector<Process> new_arr;
+    std::vector<Process> new_bt = arr;
     bool done = false;
     Process *front = NULL;
     while(!done)
     {
         done = true;
         time++;
-        while(ready_queue[0].arrivalTime > time)
+        for(int i=0; i<ready_queue.size(); i++)
         {
             //find what Process arrived then delete it from ready queue 
             if(ready_queue[0].arrivalTime <= time)
-                Arrivals.push(ready_queue[0]),
+            {
+                Arrivals.push(ready_queue[0]);
                 ready_queue.erase(ready_queue.begin());
+            }
         }
         if(front) Arrivals.push(*front);
         front = NULL;
-        if(Arrivals.front()) //Arrivals.front() != NULL
+        if(!Arrivals.empty())//Arrivals.front() != NULL
         {
+            std::cout<<"Yes\n";
             if(Arrivals.front().brustTime > TimeQuantum)
             {
                 front = &Arrivals.front();
                 GantChart.push_back(*front);
                 front->brustTime -= TimeQuantum;
                 //in case Process faces cpu for 1st time
-                if(front->got_cpu_at == -1) front()->got_cpu_at = time;
+                if(front->got_cpu_at == -1) front->got_cpu_at = time;
                 time += TimeQuantum;
                 Arrivals.pop();
-                front = NULL;
             }
             else
             {
@@ -158,6 +160,7 @@ void RoundRobin::calculate()
                     if(Arrivals.front().processID == arr[i].processID)
                     {
                         front = &arr[i];
+                        new_bt[i].brustTime = 0;
                         break;
                     }
                 front->completion_time = time;
@@ -166,6 +169,12 @@ void RoundRobin::calculate()
                 front = NULL;
             }
             time--;
+            for(int i=0; i<new_bt.size(); i++)
+                if(new_bt[i].brustTime > 0)
+                {
+                    done = false;
+                    break;
+                }
         }
     }
 }
