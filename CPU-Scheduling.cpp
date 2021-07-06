@@ -131,6 +131,9 @@ void RoundRobin::calculate()
     int time = -1;
     int rem_bt[arr.size()];
     std::vector<Process> ready_queue = sort();
+    for(int i=0; i<ready_queue.size(); i++)
+        std::cout<<ready_queue[i].processID<<" ";
+    std::cout<<'\n';
     std::vector<Process> new_bt = arr;
     bool done = false;
     Process *front = NULL;
@@ -138,14 +141,10 @@ void RoundRobin::calculate()
     {
         done = true;
         time++;
-        for(int i=0; i<ready_queue.size(); i++)
-        {
-            //find what Process arrived then delete it from ready queue 
-            if(ready_queue[0].arrivalTime <= time)
-            {
-                Arrivals.push(ready_queue[0]);
-                ready_queue.erase(ready_queue.begin());
-            }
+        while(ready_queue.size() > 0 && ready_queue[0].arrivalTime <= time)
+        { 
+            Arrivals.push(ready_queue[0]);
+            ready_queue.erase(ready_queue.begin());
         }
         if(front) Arrivals.push(*front);
         front = NULL;
@@ -158,11 +157,18 @@ void RoundRobin::calculate()
                 front->brustTime -= TimeQuantum;
                 //in case Process faces cpu for 1st time
                 if(front->got_cpu_at == -1) front->got_cpu_at = time;
+                for(int i=0; i<arr.size(); i++)
+                    if(Arrivals.front().processID == arr[i].processID)
+                    {
+                        new_bt[i].brustTime -= TimeQuantum;
+                        break;
+                    }
                 time += TimeQuantum;
                 Arrivals.pop();
             }
             else
             {
+                GantChart.push_back(Arrivals.front());
                 time += Arrivals.front().brustTime;
                 Arrivals.front().brustTime = 0;
                 for(int i=0; i<arr.size(); i++)
