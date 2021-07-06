@@ -33,9 +33,14 @@ class Scheduler
 {
     protected:
         std::vector<Process> arr;
-        void sort()
+        std::vector<Process> sort()
         {
-            std::sort(arr.begin(), arr.end(), comparison);
+            std::vector<Process> Queue;
+            std::vector<Process> vec = arr;
+            std::sort(vec.begin(), vec.end(), comparison);
+            for(int i=0; i<vec.size(); i++)
+                Queue.push_back(vec[i]);
+            return Queue;
         }
     public:
         void get_array();
@@ -46,7 +51,7 @@ class Scheduler
 class RoundRobin : public Scheduler
 {
     private:
-        std::vector<std::reference_wrapper<Process>> GantChart;
+        std::vector<Process> GantChart;
         std::queue<Process> Arrivals;
         int TimeQuantum;
     public:
@@ -113,36 +118,44 @@ void Scheduler::show()
 
 void RoundRobin::calculate()
 {
-    bool done = false;
     int time = -1;
-    sort();
-    Process *temp = NULL;
-    std::queue<Process> Queue;
+    int rem_bt[arr.size()];
+    std::vector<Process> ready_queue = sort();
     for(int i=0; i<arr.size(); i++)
-        Queue.push(arr[i]);
+        rem_bt = arr[i].brustTime;
+    bool done = false;
+    Process *front = NULL;
     while(!done)
     {
+        done = true;
         time++;
-        //iterate over the Queue and find what processess have arriverd
-        for(int i=0; i<Queue.size(); i++)
+        while(ready_queue[0].arrivalTime > time)
         {
-            if(Queue.front().arrivalTime <= time)
+            //find what Process arrived then delete it from ready queue 
+            if(ready_queue[0].arrivalTime <= time)
+                Arrivals.push(ready_queue[0]),
+                ready_queue.erase(ready_queue.begin());
+        }
+        if(front) Arrivals.push(*front);
+        front = NULL;
+        if(Arrivals.front()) //Arrivals.front() != NULL
+        {
+            if(Arrivals.front().brustTime > TimeQuantum)
             {
-                Arrivals.push(Queue.front());
-                Queue.pop();
+                front = &Arrivals.front();
+                GantChart.push_back(*front);
+                front->brustTime -= TimeQuantum;
+                //in case Process faces cpu for 1st time
+                if(front->got_cpu_at == -1) front()->got_cpu_at = time;
+                time += TimeQuantum;
+                Arrivals.pop();
+            }
+            else
+            {
+                time += Arrivals.front().brustTime;
+                Arrivals.front().brustTime = 0;
             }
         }
-        if(temp) Arrivals.push(*temp);
-        temp = NULL;
-        if(Arrivals.front().brustTime > TimeQuantum)
-        {
-            Arrivals.front().brustTime -= TimeQuantum
-            time += TimeQuantum;
-        }
-        else
-        {
-            Arrivals.front().brustTime = 0;
-            time += Arrivals.front().brustTime;
-        }
+        time--;
     }
 }
