@@ -141,7 +141,6 @@ void RoundRobin::calculate()
         front = NULL;
         if(!Arrivals.empty())//Arrivals.front() != NULL
         {
-            std::cout<<"Yes\n";
             if(Arrivals.front().brustTime > TimeQuantum)
             {
                 front = &Arrivals.front();
@@ -169,12 +168,12 @@ void RoundRobin::calculate()
                 front = NULL;
             }
             time--;
-            for(int i=0; i<new_bt.size(); i++)
-                if(new_bt[i].brustTime > 0)
-                {
-                    done = false;
-                    break;
-                }
         }
+        for(int i=0; i<new_bt.size(); i++)
+            if(new_bt[i].brustTime > 0)
+            {
+                done = false;
+                break;
+            }
     }
 }
