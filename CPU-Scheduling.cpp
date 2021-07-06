@@ -148,13 +148,14 @@ void RoundRobin::calculate()
                 if(front->got_cpu_at == -1) front()->got_cpu_at = time;
                 time += TimeQuantum;
                 Arrivals.pop();
+                front = NULL;
             }
             else
             {
                 time += Arrivals.front().brustTime;
                 Arrivals.front().brustTime = 0;
                 for(int i=0; i<arr.size(); i++)
-                    if(Arrivals.front() == arr[i])
+                    if(Arrivals.front().processID == arr[i].processID)
                     {
                         front = &arr[i];
                         break;
