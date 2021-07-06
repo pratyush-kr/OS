@@ -1,9 +1,12 @@
+// TO RUN: g++ -o CPU-Scheduling CPU-Scheduling.cpp && ./CPU-Scheduling
+
 #include<iostream>
 #include<cstring>
 #include<vector>
 #include<iomanip>
 #include<algorithm>
 #include<queue>
+
 
 class Process
 {
@@ -13,12 +16,15 @@ class Process
         float arrivalTime;
         float got_cpu_at;
         float completion_time;
+        float waiting_time;
+        float turn_around_time;
+        float response_time;
         Process(char PID = '\0', float BT = 0, float AT = 0) 
         {
             processID = PID;
             brustTime = BT;
             arrivalTime = AT;
-            got_cpu_at = completion_time = -1;
+            got_cpu_at = completion_time = waiting_time  = turn_around_time = response_time = -1;
         }
 };
 
@@ -115,14 +121,22 @@ void Scheduler::get_array()
 
 void Scheduler::show()
 {
-    std::cout<<"PID  BT  AT  CT WT\n";
+    std::cout<<"PID"<<std::setw(4)<<std::right
+             <<"BT"<<std::setw(5)<<std::right
+             <<"AT"<<std::setw(5)<<std::right
+             <<"CT"<<std::setw(5)<<std::right
+             <<"WT"<<std::setw(5)<<std::right
+             <<"TAT"<<std::setw(5)<<std::right
+             <<"RT\n";
     for(int i=0; i<arr.size(); i++)
     {
-        std::cout<<arr[i].processID<<"  "
-                 <<arr[i].brustTime<<"  "
-                 <<arr[i].arrivalTime<<"  "
-                 <<arr[i].completion_time<<" "
-                 <<arr[i].completion_time - arr[i].brustTime - arr[i].arrivalTime<<"\n";
+        std::cout<<arr[i].processID<<std::setw(5)<<std::right
+                <<arr[i].brustTime<<std::setw(5)<<std::right
+                <<arr[i].arrivalTime<<std::setw(5)<<std::right
+                <<arr[i].completion_time<<std::setw(5)<<std::right
+                <<arr[i].waiting_time<<std::setw(5)<<std::right
+                <<arr[i].turn_around_time<<std::setw(5)<<std::right
+                <<arr[i].response_time<<"\n";
     }
 }
 
@@ -191,5 +205,11 @@ void RoundRobin::calculate()
                 done = false;
                 break;
             }
+    }
+    for(int i=0; i<arr.size(); i++)
+    {
+        arr[i].waiting_time = arr[i].completion_time - arr[i].brustTime - arr[i].arrivalTime;
+        arr[i].turn_around_time = arr[i].waiting_time + arr[i].brustTime;
+        arr[i].response_time = arr[i].got_cpu_at - arr[i].arrivalTime;
     }
 }
