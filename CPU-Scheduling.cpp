@@ -19,7 +19,7 @@ class Process
         float waiting_time;
         float turn_around_time;
         float response_time;
-        Process(char PID = '\0', float BT = 0, float AT = 0) 
+        Process(char PID = '\0', float BT = 0, float AT = 0)
         {
             processID = PID;
             brustTime = BT;
@@ -52,22 +52,38 @@ class Scheduler
         void get_array();
         void show();
         virtual void calculate() = 0;
-        virtual void printGantChart() = 0;
+        virtual void printGanttChart() = 0;
 };
 
 class RoundRobin : public Scheduler
 {
     private:
-        std::vector<Process> GantChart;
+        std::vector<Process> GanttChart;
         std::queue<Process> Arrivals;
         int TimeQuantum;
     public:
         void calculate();
         RoundRobin(int TQ = 2){TimeQuantum = TQ;}
-        void printGantChart()
+        void printGanttChart()
         {
-            for(int i=0; i<GantChart.size(); i++)
-                std::cout<<GantChart[i].processID<<" ";
+            for(int i=0; i<GanttChart.size(); i++)
+                std::cout<<GanttChart[i].processID<<" ";
+            std::cout<<"\n";
+        }
+};
+
+class FCFS : public Scheduler
+{
+    private:
+        std::vector<Process> GanttChart;
+        int TimeQuantum;
+    public:
+        void calculate();
+        FCFS(int TQ = 2){TimeQuantum = TQ;}
+        void printGanttChart()
+        {
+            for(int i=0; i<GanttChart.size(); i++)
+                std::cout<<GanttChart[i].processID<<" ";
             std::cout<<"\n";
         }
 };
@@ -167,7 +183,7 @@ void RoundRobin::calculate()
             if(Arrivals.front().brustTime > TimeQuantum)
             {
                 front = &Arrivals.front();
-                GantChart.push_back(*front);
+                GanttChart.push_back(*front);
                 front->brustTime -= TimeQuantum;
                 //in case Process faces cpu for 1st time
                 if(front->got_cpu_at == -1) front->got_cpu_at = time;
@@ -182,7 +198,7 @@ void RoundRobin::calculate()
             }
             else
             {
-                GantChart.push_back(Arrivals.front());
+                GanttChart.push_back(Arrivals.front());
                 time += Arrivals.front().brustTime;
                 Arrivals.front().brustTime = 0;
                 for(int i=0; i<arr.size(); i++)
@@ -212,4 +228,9 @@ void RoundRobin::calculate()
         arr[i].turn_around_time = arr[i].waiting_time + arr[i].brustTime;
         arr[i].response_time = arr[i].got_cpu_at - arr[i].arrivalTime;
     }
+}
+
+void FCFS::calculate()
+{
+    
 }
