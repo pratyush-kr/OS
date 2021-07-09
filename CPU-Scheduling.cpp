@@ -238,7 +238,7 @@ void RoundRobin::calculate()
 
 void FCFS::calculate()
 {
-    int time = 0, i=-1;
+    int time = 0;
     std::sort(arr.begin(), arr.end(), comparison);
     time += arr[0].arrivalTime;
     std::queue<Process*> Queue;
@@ -248,6 +248,7 @@ void FCFS::calculate()
     {
         if(Queue.front()->arrivalTime <= time)
         {
+            GanttChart.push_back(*Queue.front());
             Queue.front()->got_cpu_at = time;
             time += Queue.front()->brustTime;
             Queue.front()->completion_time = time;
