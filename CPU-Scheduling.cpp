@@ -76,10 +76,8 @@ class FCFS : public Scheduler
 {
     private:
         std::vector<Process> GanttChart;
-        int TimeQuantum;
     public:
         void calculate();
-        FCFS(int TQ = 2){TimeQuantum = TQ;}
         void printGanttChart()
         {
             for(int i=0; i<GanttChart.size(); i++)
@@ -91,7 +89,7 @@ class FCFS : public Scheduler
 int main()
 {
     char command[20];
-    Scheduler *Sc;
+    Scheduler *Sc = NULL;
     int TQ;
     while(1)
     {
@@ -101,9 +99,17 @@ int main()
             break;
         else if(!strcmp(command, "RoundRobin"))
         {
+            if(Sc) delete Sc;
+            Sc = NULL;
             std::cout<<"Time Quantum (ms): ";
             std::cin>>TQ;
             Sc = new RoundRobin(TQ);
+        }
+        else if(!strcmp(command, "FCFS"))
+        {
+            if(Sc) delete Sc;
+            Sc = NULL;
+            Sc = new FCFS();
         }
         else if(!strcmp(command, "get_array"))
             Sc->get_array();
@@ -111,8 +117,8 @@ int main()
             Sc->show();
         else if(!strcmp(command, "calculate"))
             Sc->calculate();
-        else if(!strcmp(command, "GantChart"))
-            Sc->printGantChart();
+        else if(!strcmp(command, "GanttChart"))
+            Sc->printGanttChart();
     }
     return 0;
 }
@@ -232,5 +238,28 @@ void RoundRobin::calculate()
 
 void FCFS::calculate()
 {
-    
+    int time = 0, i=-1;
+    std::sort(arr.begin(), arr.end(), comparison);
+    time += arr[0].arrivalTime;
+    std::queue<Process*> Queue;
+    for(int i=0; i<arr.size(); i++)
+        Queue.push(&arr[i]);
+    while(!Queue.empty())
+    {
+        if(Queue.front()->arrivalTime <= time)
+        {
+            Queue.front()->got_cpu_at = time;
+            time += Queue.front()->brustTime;
+            Queue.front()->completion_time = time;
+            time--;
+            Queue.pop();
+        }
+        time++;
+    }
+    for(int i=0; i<arr.size(); i++)
+    {
+        arr[i].waiting_time = arr[i].completion_time - arr[i].brustTime - arr[i].arrivalTime;
+        arr[i].turn_around_time = arr[i].waiting_time + arr[i].brustTime;
+        arr[i].response_time = arr[i].got_cpu_at - arr[i].arrivalTime;
+    }
 }
