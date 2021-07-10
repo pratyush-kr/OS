@@ -13,7 +13,6 @@
 #include<algorithm>
 #include<queue>
 
-
 class Process
 {
     public:
@@ -56,7 +55,7 @@ class Scheduler
     protected:
         std::vector<Process> arr;
     public:
-        virtual void show();
+        void show();
         void get_array();
         virtual void calculate() = 0;
         virtual void printGanttChart() = 0;
@@ -85,6 +84,20 @@ class RoundRobin : public Scheduler
 //Specialized Class for FCFS
 //Dedicated calculate Function and GanttCharts' Are avilable
 class FCFS : public Scheduler
+{
+    private:
+        std::vector<Process> GanttChart;
+    public:
+        void calculate();
+        void printGanttChart()
+        {
+            for(int i=0; i<GanttChart.size(); i++)
+                std::cout<<GanttChart[i].processID<<" ";
+            std::cout<<"\n";
+        }
+};
+
+class Priority : public Scheduler
 {
     private:
         std::vector<Process> GanttChart;
