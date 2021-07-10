@@ -66,8 +66,8 @@ class RoundRobin : public Scheduler
         std::queue<Process*> Arrivals;
         int TimeQuantum;
     public:
-        void calculate();
         RoundRobin(int TQ = 2){TimeQuantum = TQ;}
+        void calculate();
         void printGanttChart()
         {
             for(int i=0; i<GanttChart.size(); i++)
@@ -116,22 +116,17 @@ int main()
             Sc = new FCFS();
         }
         else if(!strcmp(command, "get_array"))
-            Sc->get_array();
+            if(Sc) Sc->get_array();
+            else std::cout<<"No Algo Selected\n";
         else if(!strcmp(command, "show"))
-        {
            if(Sc) Sc->show();
            else std::cout<<"No Algo Selected\n";
-        }
         else if(!strcmp(command, "calculate"))
-        {
             if(Sc) Sc->calculate();
             else std::cout<<"No Algo Selected\n";
-        }
         else if(!strcmp(command, "GanttChart"))
-        {
             if(Sc) Sc->printGanttChart();
             else std::cout<<"No Algo Selected\n";
-        }
     }
     return 0;
 }
@@ -177,6 +172,11 @@ void Scheduler::show()
 
 void RoundRobin::calculate()
 {
+    if(arr.size() == 0)
+    {
+        std::cout<<"No Array to operate\n";
+        return;
+    }
     int time = -1;
     bool done = false;
     Process *front = NULL;
@@ -241,6 +241,11 @@ void RoundRobin::calculate()
 
 void FCFS::calculate()
 {
+    if(arr.size() == 0)
+    {
+        std::cout<<"No Array to operate\n";
+        return;
+    }
     int time = 0;
     std::sort(arr.begin(), arr.end(), compareAT);
     time += arr[0].arrivalTime;
