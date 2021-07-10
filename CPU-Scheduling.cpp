@@ -37,7 +37,7 @@ class Process
 };
 
 
-//This Function is used to sort the vector arr
+//These Function is used to sort the vector arr
 bool compareAT(const Process &i, const Process &j)
 {
     return (i.arrivalTime < j.arrivalTime)? true:false;
@@ -48,17 +48,22 @@ bool comparePID(const Process &i, const Process &j)
     return (i.processID < j.processID)? true:false;
 }
 
+
+//The Main Class Containing the array of Processes and
+//and some general functions
 class Scheduler
 {
     protected:
         std::vector<Process> arr;
     public:
         virtual void show();
-        virtual void get_array();
+        void get_array();
         virtual void calculate() = 0;
         virtual void printGanttChart() = 0;
 };
 
+//Specialized Class for RoundRobin
+//Dedicated calculate Function and GanttCharts' Are avilable
 class RoundRobin : public Scheduler
 {
     private:
@@ -76,6 +81,9 @@ class RoundRobin : public Scheduler
         }
 };
 
+
+//Specialized Class for FCFS
+//Dedicated calculate Function and GanttCharts' Are avilable
 class FCFS : public Scheduler
 {
     private:
@@ -103,7 +111,7 @@ int main()
             break;
         else if(!strcmp(command, "RoundRobin"))
         {
-            if(Sc) delete Sc;
+            if(Sc) delete Sc; //if Sc contains any Object Delete it 1st
             Sc = NULL;
             std::cout<<"Time Quantum (ms): ";
             std::cin>>TQ;
@@ -111,10 +119,11 @@ int main()
         }
         else if(!strcmp(command, "FCFS"))
         {
-            if(Sc) delete Sc;
+            if(Sc) delete Sc; //if Sc contains any Object Delete it 1st
             Sc = NULL;
             Sc = new FCFS();
         }
+        //Do these Only if Sc has an Object
         else if(!strcmp(command, "get_array"))
             if(Sc) Sc->get_array();
             else std::cout<<"No Algo Selected\n";
@@ -127,17 +136,25 @@ int main()
         else if(!strcmp(command, "GanttChart"))
             if(Sc) Sc->printGanttChart();
             else std::cout<<"No Algo Selected\n";
+        else if(!strcmp(command, "delete"))
+            if(Sc) delete Sc;
     }
     return 0;
 }
 
+//Takes Array Input
 void Scheduler::get_array()
 {
+    bool req = false;
     char PID;
-    int BT, AT;
+    int BT, AT, P = 0;
     std::string str;
     std::cout<<"Type exit to quit entring\n";
-    std::cout<<"PID BT AT\n";
+    std::cout<<"Priority Required? ";
+    std::cin>>req;
+    std::cout<<"PID BT AT";
+    if(req) std::cout<<" Priority";
+    std::cout<<'\n';
     while(1)
     {
         std::cin>>str;
@@ -145,7 +162,8 @@ void Scheduler::get_array()
             break;
         PID = str[0];
         std::cin>>BT>>AT;
-        arr.push_back(*(new Process(PID, BT, AT)));
+        if(req) std::cin>>P;
+        arr.push_back(*(new Process(PID, BT, AT, P)));
     }
 }
 
@@ -153,7 +171,8 @@ void Scheduler::show()
 {
     std::cout<<"PID"<<std::setw(4)<<std::right
              <<"BT"<<std::setw(5)<<std::right
-             <<"AT"<<std::setw(5)<<std::right
+             <<"AT"<<std::setw(13)<<std::right
+             <<"Priority"<<std::setw(5)<<std::right
              <<"CT"<<std::setw(5)<<std::right
              <<"WT"<<std::setw(5)<<std::right
              <<"TAT"<<std::setw(5)<<std::right
@@ -162,7 +181,8 @@ void Scheduler::show()
     {
         std::cout<<arr[i].processID<<std::setw(5)<<std::right
                 <<arr[i].brustTime<<std::setw(5)<<std::right
-                <<arr[i].arrivalTime<<std::setw(5)<<std::right
+                <<arr[i].arrivalTime<<std::setw(11)<<std::right
+                <<arr[i].priority<<std::setw(7)<<std::right
                 <<arr[i].completion_time<<std::setw(5)<<std::right
                 <<arr[i].waiting_time<<std::setw(5)<<std::right
                 <<arr[i].turn_around_time<<std::setw(5)<<std::right
