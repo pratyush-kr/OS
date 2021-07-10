@@ -1,6 +1,9 @@
-for(int i=0; i<arr.size(); i++)
-    // {
-    //     arr[i].waiting_time = arr[i].completion_time - arr[i].brustTime - arr[i].arrivalTime;
-    //     arr[i].turn_around_time = arr[i].waiting_time + arr[i].brustTime;
-    //     arr[i].response_time = arr[i].got_cpu_at - arr[i].arrivalTime;
-    // }
+RoundRobin get_array
+        A 3 0
+        B 4 7
+        C 9 0
+        D 0 2
+        E 7 6
+        exit
+        calculate
+        show

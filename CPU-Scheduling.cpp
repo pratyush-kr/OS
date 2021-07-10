@@ -1,5 +1,11 @@
 // TO RUN: g++ -o CPU-Scheduling CPU-Scheduling.cpp && ./CPU-Scheduling
 
+/*
+    Test Case:
+        RoundRobin 2 get_array A 3 0 B 4 7 C 9 0 D 0 2 E 7 6 exit calculate show
+        FCFS get_array A 3 0 B 4 7 C 9 0 D 0 2 E 7 6 exit calculate show
+*/
+
 #include<iostream>
 #include<cstring>
 #include<vector>
@@ -19,12 +25,14 @@ class Process
         float waiting_time;
         float turn_around_time;
         float response_time;
-        Process(char PID = '\0', float BT = 0, float AT = 0)
+        unsigned int priority;
+        Process(char PID = '\0', float BT = 0, float AT = 0, unsigned int P = 0)
         {
             processID = PID;
             brustTime = BT;
             arrivalTime = AT;
             got_cpu_at = completion_time = waiting_time  = turn_around_time = response_time = -1;
+            priority = P;
         }
 };
 
@@ -45,8 +53,8 @@ class Scheduler
     protected:
         std::vector<Process> arr;
     public:
-        void get_array();
-        void show();
+        virtual void show();
+        virtual void get_array();
         virtual void calculate() = 0;
         virtual void printGanttChart() = 0;
 };
@@ -110,11 +118,20 @@ int main()
         else if(!strcmp(command, "get_array"))
             Sc->get_array();
         else if(!strcmp(command, "show"))
-            Sc->show();
+        {
+           if(Sc) Sc->show();
+           else std::cout<<"No Algo Selected\n";
+        }
         else if(!strcmp(command, "calculate"))
-            Sc->calculate();
+        {
+            if(Sc) Sc->calculate();
+            else std::cout<<"No Algo Selected\n";
+        }
         else if(!strcmp(command, "GanttChart"))
-            Sc->printGanttChart();
+        {
+            if(Sc) Sc->printGanttChart();
+            else std::cout<<"No Algo Selected\n";
+        }
     }
     return 0;
 }
@@ -184,15 +201,16 @@ void RoundRobin::calculate()
             if(Arrivals.front()->brustTime > TimeQuantum)
             {
                 front = Arrivals.front();
-                GanttChart.push_back(*front);
-                front->brustTime -= TimeQuantum;
                 //in case Process faces cpu for 1st time
                 if(front->got_cpu_at == -1) front->got_cpu_at = time;
+                GanttChart.push_back(*front);
+                front->brustTime -= TimeQuantum;
                 time += TimeQuantum;
                 Arrivals.pop();
             }
             else
             {
+                if(Arrivals.front()->got_cpu_at == -1) Arrivals.front()->got_cpu_at = time;
                 GanttChart.push_back(*Arrivals.front());
                 time += Arrivals.front()->brustTime;
                 Arrivals.front()->brustTime = 0;
