@@ -13,7 +13,6 @@
 #include<algorithm>
 #include<queue>
 
-
 class Process
 {
     public:
@@ -48,6 +47,11 @@ bool comparePID(const Process &i, const Process &j)
     return (i.processID < j.processID)? true:false;
 }
 
+bool compareP(const Process &i, const Process &j)
+{
+    return (i.priority < j.priority)? true:false;
+}
+
 
 //The Main Class Containing the array of Processes and
 //and some general functions
@@ -56,7 +60,7 @@ class Scheduler
     protected:
         std::vector<Process> arr;
     public:
-        virtual void show();
+        void show();
         void get_array();
         virtual void calculate() = 0;
         virtual void printGanttChart() = 0;
@@ -76,8 +80,11 @@ class RoundRobin : public Scheduler
         void printGanttChart()
         {
             for(int i=0; i<GanttChart.size(); i++)
-                std::cout<<GanttChart[i].processID<<" ";
-            std::cout<<"\n";
+                std::cout<<"| "<<GanttChart[i].processID<<" ";
+            std::cout<<"|\n";
+            for(int i=0; i<GanttChart.size(); i++)
+                std::cout<<GanttChart[i].got_cpu_at<<std::setw(4)<<std::right;
+            std::cout<<GanttChart[GanttChart.size() - 1].completion_time<<"\n";
         }
 };
 
@@ -85,6 +92,23 @@ class RoundRobin : public Scheduler
 //Specialized Class for FCFS
 //Dedicated calculate Function and GanttCharts' Are avilable
 class FCFS : public Scheduler
+{
+    private:
+        std::vector<Process> GanttChart;
+    public:
+        void calculate();
+        void printGanttChart()
+        {
+            for(int i=0; i<GanttChart.size(); i++)
+                std::cout<<"| "<<GanttChart[i].processID<<" ";
+            std::cout<<"|\n";
+            for(int i=0; i<GanttChart.size(); i++)
+                std::cout<<GanttChart[i].got_cpu_at<<std::setw(4)<<std::right;
+            std::cout<<GanttChart[GanttChart.size() - 1].completion_time<<"\n";
+        }
+};
+
+class Priority : public Scheduler
 {
     private:
         std::vector<Process> GanttChart;
@@ -123,6 +147,12 @@ int main()
             Sc = NULL;
             Sc = new FCFS();
         }
+        else if(!strcmp(command, "Priority"))
+        {
+            if(Sc) delete Sc; //if Sc contains any Object Delete it 1st
+            Sc = NULL;
+            Sc = new Priority();
+        }
         //Do these Only if Sc has an Object
         else if(!strcmp(command, "get_array"))
             if(Sc) Sc->get_array();
@@ -149,9 +179,9 @@ void Scheduler::get_array()
     char PID;
     int BT, AT, P = 0;
     std::string str;
-    std::cout<<"Type exit to quit entring\n";
     std::cout<<"Priority Required? ";
     std::cin>>req;
+    std::cout<<"Type exit to quit entering\n";
     std::cout<<"PID BT AT";
     if(req) std::cout<<" Priority";
     std::cout<<'\n';
@@ -199,7 +229,7 @@ void RoundRobin::calculate()
     }
     int time = -1;
     bool done = false;
-    Process *front = NULL;
+    Process *front = NULL, *ptr = NULL;
     std::sort(arr.begin(), arr.end(), compareAT);
     std::vector<Process> bt = arr;
     std::queue<Process*> ReadyQueue;
@@ -223,19 +253,24 @@ void RoundRobin::calculate()
                 front = Arrivals.front();
                 //in case Process faces cpu for 1st time
                 if(front->got_cpu_at == -1) front->got_cpu_at = time;
-                GanttChart.push_back(*front);
                 front->brustTime -= TimeQuantum;
+                ptr = new Process(front->processID);
+                ptr->got_cpu_at = time;
                 time += TimeQuantum;
+                GanttChart.push_back(*ptr);
                 Arrivals.pop();
             }
             else
             {
-                if(Arrivals.front()->got_cpu_at == -1) Arrivals.front()->got_cpu_at = time;
-                GanttChart.push_back(*Arrivals.front());
-                time += Arrivals.front()->brustTime;
-                Arrivals.front()->brustTime = 0;
-                Arrivals.front()->completion_time = time;
-                Arrivals.front()->got_cpu_at = Arrivals.front()->got_cpu_at;
+                front = Arrivals.front();
+                if(front->got_cpu_at == -1) front->got_cpu_at = time;
+                ptr = new Process(front->processID);
+                ptr->got_cpu_at = time;
+                time += front->brustTime;
+                front->brustTime = 0;
+                front->completion_time = time;
+                ptr->completion_time = time;
+                GanttChart.push_back(*ptr);
                 Arrivals.pop();
                 front = NULL;
             }
@@ -276,10 +311,10 @@ void FCFS::calculate()
     {
         if(Queue.front()->arrivalTime <= time)
         {
-            GanttChart.push_back(*Queue.front());
             Queue.front()->got_cpu_at = time;
             time += Queue.front()->brustTime;
             Queue.front()->completion_time = time;
+            GanttChart.push_back(*Queue.front());
             time--;
             Queue.pop();
         }
@@ -292,4 +327,14 @@ void FCFS::calculate()
         arr[i].response_time = arr[i].got_cpu_at - arr[i].arrivalTime;
     }
     std::sort(arr.begin(), arr.end(), comparePID);
+}
+
+void Priority::calculate()
+{
+    int time = -1;
+    if(arr.size() == 0)
+    {
+        std::cout<<"No Array to operate\n";
+        return;
+    }
 }
