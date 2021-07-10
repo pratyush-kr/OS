@@ -30,24 +30,20 @@ class Process
 
 
 //This Function is used to sort the vector arr
-bool comparison(const Process &i, const Process &j)
+bool compareAT(const Process &i, const Process &j)
 {
     return (i.arrivalTime < j.arrivalTime)? true:false;
+}
+
+bool comparePID(const Process &i, const Process &j)
+{
+    return (i.processID < j.processID)? true:false;
 }
 
 class Scheduler
 {
     protected:
         std::vector<Process> arr;
-        std::vector<Process> sort()
-        {
-            std::vector<Process> Queue;
-            std::vector<Process> vec = arr;
-            std::sort(vec.begin(), vec.end(), comparison);
-            for(int i=0; i<vec.size(); i++)
-                Queue.push_back(vec[i]);
-            return Queue;
-        }
     public:
         void get_array();
         void show();
@@ -59,7 +55,7 @@ class RoundRobin : public Scheduler
 {
     private:
         std::vector<Process> GanttChart;
-        std::queue<Process> Arrivals;
+        std::queue<Process*> Arrivals;
         int TimeQuantum;
     public:
         void calculate();
@@ -165,69 +161,58 @@ void Scheduler::show()
 void RoundRobin::calculate()
 {
     int time = -1;
-    int rem_bt[arr.size()];
-    std::vector<Process> ready_queue = sort();
-    for(int i=0; i<ready_queue.size(); i++)
-        std::cout<<ready_queue[i].processID<<" ";
-    std::cout<<'\n';
-    std::vector<Process> new_bt = arr;
     bool done = false;
     Process *front = NULL;
+    std::sort(arr.begin(), arr.end(), compareAT);
+    std::vector<Process> bt = arr;
+    std::queue<Process*> ReadyQueue;
+    for(int i=0; i<arr.size(); i++)
+        ReadyQueue.push(&arr[i]);
     while(!done)
     {
         done = true;
         time++;
-        while(ready_queue.size() > 0 && ready_queue[0].arrivalTime <= time)
+        while(ReadyQueue.size() > 0 && ReadyQueue.front()->arrivalTime <= time)
         { 
-            Arrivals.push(ready_queue[0]);
-            ready_queue.erase(ready_queue.begin());
+            Arrivals.push(ReadyQueue.front());
+            ReadyQueue.pop();
         }
-        if(front) Arrivals.push(*front);
+        if(front) Arrivals.push(front);
         front = NULL;
-        if(!Arrivals.empty())//Arrivals.front() != NULL
+        if(!Arrivals.empty())
         {
-            if(Arrivals.front().brustTime > TimeQuantum)
+            if(Arrivals.front()->brustTime > TimeQuantum)
             {
-                front = &Arrivals.front();
+                front = Arrivals.front();
                 GanttChart.push_back(*front);
                 front->brustTime -= TimeQuantum;
                 //in case Process faces cpu for 1st time
                 if(front->got_cpu_at == -1) front->got_cpu_at = time;
-                for(int i=0; i<arr.size(); i++)
-                    if(Arrivals.front().processID == arr[i].processID)
-                    {
-                        new_bt[i].brustTime -= TimeQuantum;
-                        break;
-                    }
                 time += TimeQuantum;
                 Arrivals.pop();
             }
             else
             {
-                GanttChart.push_back(Arrivals.front());
-                time += Arrivals.front().brustTime;
-                Arrivals.front().brustTime = 0;
-                for(int i=0; i<arr.size(); i++)
-                    if(Arrivals.front().processID == arr[i].processID)
-                    {
-                        front = &arr[i];
-                        new_bt[i].brustTime = 0;
-                        break;
-                    }
-                front->completion_time = time;
-                front->got_cpu_at = Arrivals.front().got_cpu_at;
+                GanttChart.push_back(*Arrivals.front());
+                time += Arrivals.front()->brustTime;
+                Arrivals.front()->brustTime = 0;
+                Arrivals.front()->completion_time = time;
+                Arrivals.front()->got_cpu_at = Arrivals.front()->got_cpu_at;
                 Arrivals.pop();
                 front = NULL;
             }
             time--;
         }
-        for(int i=0; i<new_bt.size(); i++)
-            if(new_bt[i].brustTime > 0)
+        for(int i=0; i<arr.size(); i++)
+            if(arr[i].brustTime > 0)
             {
                 done = false;
                 break;
             }
     }
+    for(int i=0; i<arr.size(); i++)
+        arr[i].brustTime = bt[i].brustTime;
+    std::sort(arr.begin(), arr.end(), comparePID);
     for(int i=0; i<arr.size(); i++)
     {
         arr[i].waiting_time = arr[i].completion_time - arr[i].brustTime - arr[i].arrivalTime;
@@ -239,7 +224,7 @@ void RoundRobin::calculate()
 void FCFS::calculate()
 {
     int time = 0;
-    std::sort(arr.begin(), arr.end(), comparison);
+    std::sort(arr.begin(), arr.end(), compareAT);
     time += arr[0].arrivalTime;
     std::queue<Process*> Queue;
     for(int i=0; i<arr.size(); i++)
@@ -263,4 +248,5 @@ void FCFS::calculate()
         arr[i].turn_around_time = arr[i].waiting_time + arr[i].brustTime;
         arr[i].response_time = arr[i].got_cpu_at - arr[i].arrivalTime;
     }
+    std::sort(arr.begin(), arr.end(), comparePID);
 }
