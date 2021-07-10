@@ -136,6 +136,12 @@ int main()
             Sc = NULL;
             Sc = new FCFS();
         }
+        else if(!strcmp(command, "Priority"))
+        {
+            if(Sc) delete Sc; //if Sc contains any Object Delete it 1st
+            Sc = NULL;
+            Sc = new Priority();
+        }
         //Do these Only if Sc has an Object
         else if(!strcmp(command, "get_array"))
             if(Sc) Sc->get_array();
@@ -305,4 +311,19 @@ void FCFS::calculate()
         arr[i].response_time = arr[i].got_cpu_at - arr[i].arrivalTime;
     }
     std::sort(arr.begin(), arr.end(), comparePID);
+}
+
+void Priority::calculate()
+{
+    if(arr.size() == 0)
+    {
+        std::cout<<"No Array to operate\n";
+        return;
+    }
+    int time = 0;
+    std::sort(arr.begin(), arr.end(), compareAT);
+    while(1)
+    {
+        
+    }
 }
