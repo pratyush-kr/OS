@@ -181,7 +181,7 @@ void Scheduler::get_array()
     std::string str;
     std::cout<<"Priority Required? ";
     std::cin>>req;
-    std::cout<<"Type exit to quit entring\n";
+    std::cout<<"Type exit to quit entering\n";
     std::cout<<"PID BT AT";
     if(req) std::cout<<" Priority";
     std::cout<<'\n';
