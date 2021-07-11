@@ -337,4 +337,12 @@ void Priority::calculate()
         std::cout<<"No Array to operate\n";
         return;
     }
+    std::sort(arr.begin(), arr.end(), compareAT);
+    std::queue<Process> ReadyQueue;
+    for(int i=0; i<arr.size(); i++)
+        ReadyQueue.push(arr[i]);
+    while(1)
+    {
+        time++;
+    }
 }
