@@ -338,11 +338,17 @@ void Priority::calculate()
         return;
     }
     std::sort(arr.begin(), arr.end(), compareAT);
-    std::queue<Process> ReadyQueue;
+    std::queue<Process*> ReadyQueue;
+    std::vector<Process*> Arrived;
     for(int i=0; i<arr.size(); i++)
-        ReadyQueue.push(arr[i]);
+        ReadyQueue.push(&arr[i]);
     while(1)
     {
-        time++;
+        while(ReadyQueue.size() > 0 && ReadyQueue.front()->arrivalTime <= time)
+        {
+            Arrived.push_back(ReadyQueue.front());
+            ReadyQueue.pop();
+        }
+        std::sort(Arrived.begin(), Arrived.end(), compareP);
     }
 }
