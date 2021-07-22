@@ -47,9 +47,9 @@ bool comparePID(const Process &i, const Process &j)
     return (i.processID < j.processID)? true:false;
 }
 
-bool compareP(const Process &i, const Process &j)
+bool compareP(const Process *i, const Process *j)
 {
-    return (i.priority < j.priority)? true:false;
+    return (i->priority < j->priority)? true:false;
 }
 
 
@@ -342,13 +342,14 @@ void Priority::calculate()
     std::vector<Process*> Arrived;
     for(int i=0; i<arr.size(); i++)
         ReadyQueue.push(&arr[i]);
-    while(1)
+     while(1)
     {
+        time++;
         while(ReadyQueue.size() > 0 && ReadyQueue.front()->arrivalTime <= time)
-        {
+         {
             Arrived.push_back(ReadyQueue.front());
             ReadyQueue.pop();
-        }
+         }
         std::sort(Arrived.begin(), Arrived.end(), compareP);
     }
 }
