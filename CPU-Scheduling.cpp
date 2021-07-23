@@ -70,10 +70,13 @@ bool comparePr(const Process &i, const Process &j)
 class Scheduler
 {
     protected:
+        //stores the Processes 
         std::vector<Process> arr;
     public:
         void show();
         void get_array();
+        //virtual functions help achieve
+        //Run time polymorphism
         virtual void calculate() = 0;
         virtual void printGanttChart() = 0;
 };
@@ -120,6 +123,7 @@ class FCFS : public Scheduler
         }
 };
 
+//A class of the Priority Premtive
 class Priority : public Scheduler
 {
     private:
@@ -139,6 +143,7 @@ int main()
     char command[20];
     Scheduler *Sc = NULL;
     int TQ;
+    //Main Loop
     while(1)
     {
         std::cout<<"command: ";
@@ -191,6 +196,7 @@ void Scheduler::get_array()
     char PID;
     int BT, AT, P = 0;
     std::string str;
+    //Priority is an optional
     std::cout<<"Priority Required? ";
     std::cin>>req;
     std::cout<<"Type exit to quit entering\n";
@@ -200,6 +206,7 @@ void Scheduler::get_array()
     while(1)
     {
         std::cin>>str;
+        //this statement is used to break the entry streak
         if(str == "exit")
             break;
         PID = str[0];
@@ -232,7 +239,6 @@ void Scheduler::show()
     }
 }
 
-//infinite loop problem
 void RoundRobin::calculate()
 {
     if(arr.size() == 0)
