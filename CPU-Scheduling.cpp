@@ -332,6 +332,7 @@ void FCFS::calculate()
 void Priority::calculate()
 {
     int time = -1;
+    std::vector<Process> bt = arr;
     if(arr.size() == 0)
     {
         std::cout<<"No Array to operate\n";
@@ -340,16 +341,48 @@ void Priority::calculate()
     std::sort(arr.begin(), arr.end(), compareAT);
     std::queue<Process*> ReadyQueue;
     std::vector<Process*> Arrived;
+    bool done = false;
+    Process *front = NULL, *tmp = NULL;
     for(int i=0; i<arr.size(); i++)
         ReadyQueue.push(&arr[i]);
-     while(1)
+    while(!done)
     {
+        done = true;
         time++;
         while(ReadyQueue.size() > 0 && ReadyQueue.front()->arrivalTime <= time)
-         {
+        {
             Arrived.push_back(ReadyQueue.front());
             ReadyQueue.pop();
-         }
-        std::sort(Arrived.begin(), Arrived.end(), compareP);
+        }
+        if(!Arrived.empty())
+        {
+            if(tmp) Arrived.push_back(tmp);
+            std::sort(Arrived.begin(), Arrived.end(), compareP);
+            //Now I get the Arrived Process Sorted According
+            //to the Priority
+            if(front && Arrived.front() != front)
+                tmp = front;
+            front = Arrived.front();
+            if(front->got_cpu_at == -1)
+                front->got_cpu_at = time;
+            if(front->brustTime > 0)
+                front->brustTime--;
+            else//Process is completed 
+            {
+                Arrived.front()->completion_time = time;
+                Arrived.erase(Arrived.begin()),
+                front = NULL;
+            }
+        }
+        for(int i=0; i<arr.size(); i++)
+            if(arr[i].brustTime > 0)
+            {
+                done = false;
+                break;
+            }
     }
+    std::sort(arr.begin(), arr.end(), comparePID);
+    for(int i=0; i<arr.size(); i++)
+        arr[i].brustTime = bt[i].brustTime;
+
 }
