@@ -4,6 +4,14 @@
     Test Case:
         RoundRobin 2 get_array A 3 0 B 4 7 C 9 0 D 0 2 E 7 6 exit calculate show
         FCFS get_array A 3 0 B 4 7 C 9 0 D 0 2 E 7 6 exit calculate show
+        Priority get_array 1
+        A 3 0 3
+        B 4 7 2
+        C 9 0 2
+        D 0 2 1
+        E 7 6 5
+        exit
+        show calculate show exit
 */
 
 #include<iostream>
