@@ -60,6 +60,10 @@ bool compareP(const Process *i, const Process *j)
     return (i->priority > j->priority)? true:false;
 }
 
+bool compareP(const Process &i, const Process &j)
+{
+    return (i->priority > j->priority)? true:false;
+}
 
 //The Main Class Containing the array of Processes and
 //and some general functions
