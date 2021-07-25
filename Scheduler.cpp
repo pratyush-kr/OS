@@ -5,12 +5,12 @@
         RoundRobin 2 get_array A 3 0 B 4 7 C 9 0 D 0 2 E 7 6 exit calculate show
         FCFS get_array A 3 0 B 4 7 C 9 0 D 0 2 E 7 6 exit calculate show
         Priority get_array 1
-        A 3 0 3
-        B 4 7 2
-        C 9 0 2
-        D 0 2 1
-        E 7 6 5
-        exit
+A 3 0 3
+B 4 7 2
+C 9 0 2
+D 0 2 1
+E 7 6 5
+exit
         show calculate show exit
 */
 
@@ -368,13 +368,16 @@ void Priority::calculate()
     {
         done = true;
         time++;
-        if(tmp) Arrived.push_back(tmp);
-        tmp = NULL;
+        if(tmp)
+        {
+            Arrived.push_back(tmp);
+            tmp = NULL;
+        }
         while(ReadyQueue.size() > 0 && ReadyQueue.front()->arrivalTime <= time)
         {
             Arrived.push_back(ReadyQueue.front());
             ReadyQueue.pop();
-        }
+        }        
         if(!Arrived.empty())
         {
             std::sort(Arrived.begin(), Arrived.end(), compareP);
@@ -385,7 +388,7 @@ void Priority::calculate()
             front = Arrived.front();
             if(front->got_cpu_at == -1)
                 front->got_cpu_at = time;
-            if(front->brustTime >= 0)
+            if(front->brustTime > 0)
                 front->brustTime--;
             else//Process is completed 
             {
