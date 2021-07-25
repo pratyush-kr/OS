@@ -40,7 +40,6 @@ class Process
             arrivalTime = AT;
             got_cpu_at = completion_time = waiting_time  = turn_around_time = response_time = -1;
             priority = P;
-            
         }
 };
 

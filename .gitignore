@@ -2,3 +2,7 @@
 .vscode
 #ignore complied files
 Scheduler
+#ignore .out files
+*.out
+#ignore .exe files
+*.exe
