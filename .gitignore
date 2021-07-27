@@ -1,4 +1,8 @@
+#don't adds vs code config files
 .vscode
+#don't adds .out files
 *.out
+#don't adds .exe file
 *.exe
+#don't adds auto named compiled files
 *-out
